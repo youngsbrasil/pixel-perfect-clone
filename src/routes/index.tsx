@@ -27,7 +27,7 @@ function Dashboard() {
     const fp = julg ? Math.round((alerts.filter((a) => a.status === "falso_positivo").length / julg) * 100) : 0;
     const days: Record<string, number> = {};
     for (let i = 27; i >= 0; i--) days[new Date(Date.UTC(2026, 9, 14) - i * 86400000).toISOString().slice(5, 10)] = 0;
-    alerts.forEach((a) => { const k = a.criado_em.slice(5, 10); if (k in days) days[k]++; });
+    alerts.forEach((a) => { const k = a.criado_em.slice(5, 10); if (k in days) days[k] = (days[k] ?? 0) + 1; });
     const porRegra = s.rules.map((r) => ({ n: r.codigo, v: alerts.filter((a) => a.rule_id === r.id).length })).filter((x) => x.v);
     const porRede = Object.entries(alerts.reduce<Record<string, number>>((acc, a) => { const r = s.profiles.find((p) => p.id === a.profile_id)!.rede; acc[r] = (acc[r] ?? 0) + 1; return acc; }, {})).map(([n, v]) => ({ n, v }));
     const porUF = s.seccionais.map((x) => ({ n: x.uf, v: alerts.filter((a) => a.seccional_uf === x.uf).length })).sort((a, b) => b.v - a.v);

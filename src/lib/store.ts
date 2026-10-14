@@ -80,7 +80,7 @@ export const actions = {
   viewPersonalData: (profileId: string) => set((d) => log(d, "acesso a dados pessoais", "perfil", profileId)),
   saveRule: (r: Rule, mudanca: string) => set((d) => {
     const i = d.rules.findIndex((x) => x.id === r.id);
-    if (i >= 0) { r.versao = d.rules[i].versao + 1; d.rules[i] = r; } else { r.versao = 1; d.rules.push(r); }
+    if (i >= 0) { r.versao = d.rules[i]!.versao + 1; d.rules[i] = r; } else { r.versao = 1; d.rules.push(r); }
     d.ruleVersions.push({ rule_id: r.id, versao: r.versao, autor: me(d).nome, em: now(), mudanca });
     log(d, i >= 0 ? "edição de regra" : "criação de regra", "regra", r.codigo);
   }),
