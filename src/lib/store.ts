@@ -31,7 +31,7 @@ function init(): AppState {
       id: `s${i + 1}`, tipo: v.startsWith("#") ? "hashtag" : "termo", valor: v, rede: i % 2 ? "tiktok" : "instagram", ativo: i !== 5,
     })),
     jobs: Array.from({ length: 8 }, (_, i) => ({
-      id: `j${i + 1}`, tipo: (["descoberta", "coleta", "analise"] as const)[i % 3], status: i === 4 ? "falhou" : "concluido",
+      id: `j${i + 1}`, tipo: (["descoberta", "coleta", "analise"] as const)[i % 3]!, status: i === 4 ? "falhou" : "concluido",
       inicio: new Date(Date.parse(NOW) - i * 6 * 3600000).toISOString(), fim: new Date(Date.parse(NOW) - i * 6 * 3600000 + 540000).toISOString(),
       itens_processados: 20 + i * 9, erros: i === 4 ? ["Limite de requisições do provedor simulado"] : [], custo_estimado: 0,
     })),
@@ -104,7 +104,7 @@ export const actions = {
         const e = enrich(f.bio, f.links_externos); const id = `p${Date.now()}${itens}`;
         d.profiles.push({ ...f, id, lawyer_score: cls.score, sinais_identificacao: cls.sinais, uf_provavel: e.oab?.uf ?? "SP", status_monitoramento: "ativo", ultima_varredura: now(), risco_score: 0 });
         d.lawyers.push({ profile_id: id, nome_completo: f.nome_exibido, oab_numero: e.oab?.numero ?? null, oab_uf: e.oab?.uf ?? null, oab_validacao: "pendente", telefones: e.telefones, whatsapp: e.whatsapp, emails: e.emails, site: e.site, coletado_em: now() });
-        targets.push(d.profiles[d.profiles.length - 1]); itens++;
+        targets.push(d.profiles[d.profiles.length - 1]!); itens++;
       }
     });
     found = [];
