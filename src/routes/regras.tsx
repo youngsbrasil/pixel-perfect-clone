@@ -33,7 +33,7 @@ function Regras() {
   const [txt, setTxt] = useState("Primeira consulta gratuita! Chama no direct.");
   const res = analyzeText(txt, s.rules);
   const lines = (k: "padroes" | "exemplos_positivos" | "exemplos_negativos") => ({ value: ed?.[k].join("\n") ?? "", onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setEd({ ...ed!, [k]: e.target.value.split("\n").filter((x) => x.trim()) }) });
-  const save = () => { if (!ed!.codigo || !ed!.nome) return { toast.error("Código e nome obrigatórios"); return; } actions.saveRule(ed!, ed!.versao ? "Edição" : "Criação"); setEd(null); toast.success("Regra salva"); };
+  const save = () => { if (!ed!.codigo || !ed!.nome) { toast.error("Código e nome obrigatórios"); return; } actions.saveRule(ed!, ed!.versao ? "Edição" : "Criação"); setEd(null); toast.success("Regra salva"); };
   return (
     <>
       <PageHeader title="Regras de irregularidade" desc="Editáveis pelo jurídico. Cada alteração gera nova versão.">
