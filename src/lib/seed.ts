@@ -8,7 +8,7 @@ const dayIso = (d: number, h = 0) => new Date(BASE - d * 86400000 - h * 3600000)
 const FUND = "Provimento 205/2021, art. 3º; CED, arts. 39 a 47";
 
 const R = (o: Partial<Rule> & Pick<Rule, "codigo" | "nome" | "padroes" | "gravidade">, i: number): Rule => ({
-  id: `r${i}`, descricao: "", categoria: o.codigo.split("-")[0], fundamento_normativo: FUND,
+  id: `r${i}`, descricao: "", categoria: o.codigo.split("-")[0]!, fundamento_normativo: FUND,
   tipo_deteccao: "palavra_chave", exemplos_positivos: [], exemplos_negativos: [], peso_score: o.gravidade === "alta" ? 30 : o.gravidade === "media" ? 15 : 5,
   limiar_confianca: 0.7, redes_aplicaveis: [], escopo: "nacional", ativo: true, versao: 1, ...o,
 });
@@ -96,8 +96,8 @@ const REG = [
 export function buildSeed() {
   const profiles: SocialProfile[] = []; const lawyers: LawyerData[] = []; const contents: ContentItem[] = [];
   for (let i = 0; i < 30; i++) {
-    const nome = NOMES[i % NOMES.length]; const uf = UFS[i % 5]; const fem = /a$/.test(nome);
-    const area = AREAS[i % AREAS.length]; const rede = REDES[i % REDES.length];
+    const nome = NOMES[i % NOMES.length]!; const uf = UFS[i % 5]!; const fem = /a$/.test(nome);
+    const area = AREAS[i % AREAS.length]!; const rede = REDES[i % REDES.length]!;
     const username = `${fem ? "dra" : "dr"}.${nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}.exemplo${i + 1}`;
     const oabNum = `${(120 + i * 7) % 900}.${(100 + i * 13) % 900}`;
     const oabStyle = i % 3 === 0 ? `OAB/${uf} ${oabNum}` : i % 3 === 1 ? `OAB-${uf} nº ${oabNum.replace(".", "")}` : `OAB ${oabNum.replace(".", "")}/${uf}`;
@@ -118,14 +118,14 @@ export function buildSeed() {
     const e = enrich(bio, links);
     lawyers.push({
       profile_id: id, nome_completo: `${nome} Exemplo da Silva (fictício)`, oab_numero: e.oab?.numero ?? null, oab_uf: e.oab?.uf ?? null,
-      oab_validacao: !e.oab ? "nao_encontrada" : (["pendente", "valida", "valida", "divergente"] as const)[i % 4],
+      oab_validacao: !e.oab ? "nao_encontrada" : (["pendente", "valida", "valida", "divergente"] as const)[i % 4]!,
       telefones: e.telefones, whatsapp: e.whatsapp, emails: e.emails, site: e.site, coletado_em: dayIso(i % 4),
     });
   }
   for (let k = 0; k < 80; k++) {
-    const p = profiles[k % 30]; const irregular = k % 5 < 2 && k < 70;
-    const texto = irregular ? IRREG[(k * 7) % IRREG.length] : REG[(k * 5) % REG.length];
-    const tipo = (["post", "reels", "post", "story", "bio"] as const)[k % 5];
+    const p = profiles[k % 30]!; const irregular = k % 5 < 2 && k < 70;
+    const texto = irregular ? IRREG[(k * 7) % IRREG.length]! : REG[(k * 5) % REG.length]!;
+    const tipo = (["post", "reels", "post", "story", "bio"] as const)[k % 5]!;
     contents.push({
       id: `c${k + 1}`, profile_id: p.id, tipo, url: `${p.url}/p/${1000 + k}`, texto,
       hashtags: texto.match(/#\w+/g) ?? [], publicado_em: dayIso((k * 3) % 28, k % 10), coletado_em: dayIso((k * 3) % 28),
@@ -137,7 +137,7 @@ export function buildSeed() {
   for (const c of contents) {
     const p = profiles.find((x) => x.id === c.profile_id)!;
     for (const m of analyzeText(c.texto, seedRules).slice(0, 1)) {
-      const status = statusCycle[a % statusCycle.length];
+      const status = statusCycle[a % statusCycle.length]!;
       alerts.push(mkAlert(`a${++a}`, c, p, m, status, c.coletado_em));
     }
   }

@@ -42,7 +42,7 @@ const OAB_RE = /oab\s*[/-]?\s*([a-z]{2})\s*(?:n[ºo°.]*\s*)?([\d.]{3,9})|oab\s*
 export function extractOAB(text: string): { numero: string; uf: string } | null {
   const m = normalize(text).match(OAB_RE);
   if (!m) return null;
-  return m[1] ? { uf: m[1].toUpperCase(), numero: m[2] } : { uf: m[4].toUpperCase(), numero: m[3] };
+  return m[1] ? { uf: m[1].toUpperCase(), numero: m[2]! } : { uf: m[4]!.toUpperCase(), numero: m[3]! };
 }
 
 export function classifyLawyer(bio: string, categoria: string, links: string[]) {

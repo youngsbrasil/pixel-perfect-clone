@@ -43,7 +43,7 @@ export function Highlight({ text, trecho }: { text: string; trecho: string }) {
 
 export function downloadCSV(name: string, rows: Record<string, unknown>[]) {
   if (!rows.length) return;
-  const keys = Object.keys(rows[0]);
+  const keys = Object.keys(rows[0]!);
   const csv = [keys.join(";"), ...rows.map((r) => keys.map((k) => `"${String(r[k] ?? "").replace(/"/g, '""')}"`).join(";"))].join("\n");
   const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a"); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
