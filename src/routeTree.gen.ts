@@ -10,33 +10,167 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AnaliseRouteImport } from './routes/analise'
+import { Route as FontesRouteImport } from './routes/fontes'
+import { Route as RegrasRouteImport } from './routes/regras'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as VarredurasRouteImport } from './routes/varreduras'
+import { Route as AlertasIndexRouteImport } from './routes/alertas.index'
+import { Route as AlertasIdRouteImport } from './routes/alertas.$id'
+import { Route as PerfisIndexRouteImport } from './routes/perfis.index'
+import { Route as PerfisIdRouteImport } from './routes/perfis.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnaliseRoute = AnaliseRouteImport.update({
+  id: '/analise',
+  path: '/analise',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FontesRoute = FontesRouteImport.update({
+  id: '/fontes',
+  path: '/fontes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegrasRoute = RegrasRouteImport.update({
+  id: '/regras',
+  path: '/regras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VarredurasRoute = VarredurasRouteImport.update({
+  id: '/varreduras',
+  path: '/varreduras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertasIndexRoute = AlertasIndexRouteImport.update({
+  id: '/alertas/',
+  path: '/alertas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertasIdRoute = AlertasIdRouteImport.update({
+  id: '/alertas/$id',
+  path: '/alertas/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfisIndexRoute = PerfisIndexRouteImport.update({
+  id: '/perfis/',
+  path: '/perfis/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfisIdRoute = PerfisIdRouteImport.update({
+  id: '/perfis/$id',
+  path: '/perfis/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/analise': typeof AnaliseRoute
+  '/fontes': typeof FontesRoute
+  '/regras': typeof RegrasRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/varreduras': typeof VarredurasRoute
+  '/alertas/$id': typeof AlertasIdRoute
+  '/perfis/$id': typeof PerfisIdRoute
+  '/alertas/': typeof AlertasIndexRoute
+  '/perfis/': typeof PerfisIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/analise': typeof AnaliseRoute
+  '/fontes': typeof FontesRoute
+  '/regras': typeof RegrasRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/varreduras': typeof VarredurasRoute
+  '/alertas/$id': typeof AlertasIdRoute
+  '/perfis/$id': typeof PerfisIdRoute
+  '/alertas': typeof AlertasIndexRoute
+  '/perfis': typeof PerfisIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/analise': typeof AnaliseRoute
+  '/fontes': typeof FontesRoute
+  '/regras': typeof RegrasRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/varreduras': typeof VarredurasRoute
+  '/alertas/$id': typeof AlertasIdRoute
+  '/perfis/$id': typeof PerfisIdRoute
+  '/alertas/': typeof AlertasIndexRoute
+  '/perfis/': typeof PerfisIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/analise'
+    | '/fontes'
+    | '/regras'
+    | '/relatorios'
+    | '/varreduras'
+    | '/alertas/$id'
+    | '/perfis/$id'
+    | '/alertas/'
+    | '/perfis/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/analise'
+    | '/fontes'
+    | '/regras'
+    | '/relatorios'
+    | '/varreduras'
+    | '/alertas/$id'
+    | '/perfis/$id'
+    | '/alertas'
+    | '/perfis'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/analise'
+    | '/fontes'
+    | '/regras'
+    | '/relatorios'
+    | '/varreduras'
+    | '/alertas/$id'
+    | '/perfis/$id'
+    | '/alertas/'
+    | '/perfis/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AnaliseRoute: typeof AnaliseRoute
+  FontesRoute: typeof FontesRoute
+  RegrasRoute: typeof RegrasRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  VarredurasRoute: typeof VarredurasRoute
+  AlertasIdRoute: typeof AlertasIdRoute
+  PerfisIdRoute: typeof PerfisIdRoute
+  AlertasIndexRoute: typeof AlertasIndexRoute
+  PerfisIndexRoute: typeof PerfisIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +182,91 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analise': {
+      id: '/analise'
+      path: '/analise'
+      fullPath: '/analise'
+      preLoaderRoute: typeof AnaliseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fontes': {
+      id: '/fontes'
+      path: '/fontes'
+      fullPath: '/fontes'
+      preLoaderRoute: typeof FontesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regras': {
+      id: '/regras'
+      path: '/regras'
+      fullPath: '/regras'
+      preLoaderRoute: typeof RegrasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/varreduras': {
+      id: '/varreduras'
+      path: '/varreduras'
+      fullPath: '/varreduras'
+      preLoaderRoute: typeof VarredurasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alertas/': {
+      id: '/alertas/'
+      path: '/alertas'
+      fullPath: '/alertas/'
+      preLoaderRoute: typeof AlertasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alertas/$id': {
+      id: '/alertas/$id'
+      path: '/alertas/$id'
+      fullPath: '/alertas/$id'
+      preLoaderRoute: typeof AlertasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfis/': {
+      id: '/perfis/'
+      path: '/perfis'
+      fullPath: '/perfis/'
+      preLoaderRoute: typeof PerfisIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfis/$id': {
+      id: '/perfis/$id'
+      path: '/perfis/$id'
+      fullPath: '/perfis/$id'
+      preLoaderRoute: typeof PerfisIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AnaliseRoute: AnaliseRoute,
+  FontesRoute: FontesRoute,
+  RegrasRoute: RegrasRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  VarredurasRoute: VarredurasRoute,
+  AlertasIdRoute: AlertasIdRoute,
+  PerfisIdRoute: PerfisIdRoute,
+  AlertasIndexRoute: AlertasIndexRoute,
+  PerfisIndexRoute: PerfisIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
