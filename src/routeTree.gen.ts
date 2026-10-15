@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as FontesRouteImport } from './routes/fontes'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegrasRouteImport } from './routes/regras'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as VarredurasRouteImport } from './routes/varreduras'
@@ -39,6 +40,11 @@ const AnaliseRoute = AnaliseRouteImport.update({
 const FontesRoute = FontesRouteImport.update({
   id: '/fontes',
   path: '/fontes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegrasRoute = RegrasRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/analise': typeof AnaliseRoute
   '/fontes': typeof FontesRoute
+  '/login': typeof LoginRoute
   '/regras': typeof RegrasRoute
   '/relatorios': typeof RelatoriosRoute
   '/varreduras': typeof VarredurasRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/analise': typeof AnaliseRoute
   '/fontes': typeof FontesRoute
+  '/login': typeof LoginRoute
   '/regras': typeof RegrasRoute
   '/relatorios': typeof RelatoriosRoute
   '/varreduras': typeof VarredurasRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/analise': typeof AnaliseRoute
   '/fontes': typeof FontesRoute
+  '/login': typeof LoginRoute
   '/regras': typeof RegrasRoute
   '/relatorios': typeof RelatoriosRoute
   '/varreduras': typeof VarredurasRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analise'
     | '/fontes'
+    | '/login'
     | '/regras'
     | '/relatorios'
     | '/varreduras'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analise'
     | '/fontes'
+    | '/login'
     | '/regras'
     | '/relatorios'
     | '/varreduras'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/analise'
     | '/fontes'
+    | '/login'
     | '/regras'
     | '/relatorios'
     | '/varreduras'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AnaliseRoute: typeof AnaliseRoute
   FontesRoute: typeof FontesRoute
+  LoginRoute: typeof LoginRoute
   RegrasRoute: typeof RegrasRoute
   RelatoriosRoute: typeof RelatoriosRoute
   VarredurasRoute: typeof VarredurasRoute
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/fontes'
       fullPath: '/fontes'
       preLoaderRoute: typeof FontesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/regras': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AnaliseRoute: AnaliseRoute,
   FontesRoute: FontesRoute,
+  LoginRoute: LoginRoute,
   RegrasRoute: RegrasRoute,
   RelatoriosRoute: RelatoriosRoute,
   VarredurasRoute: VarredurasRoute,
