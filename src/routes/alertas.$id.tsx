@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Highlight, PageHeader, SevBadge, StatusBadge, Tag, fmtDate, printHTML } from "@/components/radar";
@@ -20,6 +19,18 @@ export const Route = createFileRoute("/alertas/$id")({
 
 function Row({ k, v }: { k: string; v: React.ReactNode }) {
   return <div className="grid grid-cols-[130px_1fr] gap-2 border-t py-1.5 text-sm first:border-0"><dt className="text-muted-foreground">{k}</dt><dd className="min-w-0 break-words">{v}</dd></div>;
+}
+
+function Panel({ title, right, children }: { title: string; right?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="glass p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <h3 className="font-sans text-[15px] font-semibold tracking-tight">{title}</h3>
+        {right}
+      </div>
+      {children}
+    </div>
+  );
 }
 
 function Detalhe() {
@@ -57,36 +68,47 @@ function Detalhe() {
       </PageHeader>
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          <Card><CardHeader className="pb-2"><CardTitle className="flex items-center gap-2 text-sm">Conteúdo original <SevBadge g={a.gravidade} /><StatusBadge s={a.status} /></CardTitle></CardHeader>
-            <CardContent><p className="rounded-md border bg-muted/40 p-4 text-base leading-relaxed"><Highlight text={c.texto} trecho={a.trecho_detectado} /></p>
-              <div className="mt-2 flex gap-1">{c.hashtags.map((h) => <Tag key={h}>{h}</Tag>)}<Tag>{c.tipo}</Tag></div></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Regra violada</CardTitle></CardHeader><CardContent><dl>
+          <Panel title="Conteúdo original" right={<><SevBadge g={a.gravidade} /><StatusBadge s={a.status} /></>}>
+            <p className="rounded-lg bg-muted/40 p-4 text-base leading-relaxed"><Highlight text={c.texto} trecho={a.trecho_detectado} /></p>
+            <div className="mt-2 flex flex-wrap gap-1">{c.hashtags.map((h) => <Tag key={h}>{h}</Tag>)}<Tag>{c.tipo}</Tag></div>
+          </Panel>
+          <Panel title="Regra violada"><dl>
             <Row k="Regra" v={<><span className="font-mono">{r.codigo}</span> — {r.nome} (versão {a.rule_versao})</>} />
             <Row k="Descrição" v={r.descricao} /><Row k="Fundamento" v={r.fundamento_normativo} />
-            <Row k="Justificativa" v={a.justificativa_ia} /><Row k="Confiança" v={<span className="font-mono">{a.confianca.toFixed(2)}</span>} />
-          </dl></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Evidência (cadeia de custódia)</CardTitle></CardHeader><CardContent><dl>
+            <Row k="Justificativa" v={a.justificativa_ia} /><Row k="Confiança" v={<span className="num font-mono">{a.confianca.toFixed(2)}</span>} />
+          </dl></Panel>
+          <Panel title="Evidência (cadeia de custódia)"><dl>
             <Row k="Print" v={<span className="text-muted-foreground">Captura de tela disponível com a coleta real</span>} />
-            <Row k="URL original" v={<a href={a.evidencia.url_original} target="_blank" rel="noreferrer" className="underline">{a.evidencia.url_original}</a>} />
+            <Row k="URL original" v={<a href={a.evidencia.url_original} target="_blank" rel="noreferrer" className="text-primary underline">{a.evidencia.url_original}</a>} />
             <Row k="Hash" v={<span className="font-mono text-xs">{a.evidencia.hash_sha256}</span>} />
             <Row k="Capturado em" v={fmtDate(a.evidencia.capturado_em)} />
-          </dl></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Linha do tempo e comentários internos</CardTitle></CardHeader><CardContent>
-            <ol className="space-y-2 text-sm">{a.eventos.map((e, i) => <li key={i} className="border-l-2 pl-3"><div className="text-xs text-muted-foreground">{fmtDate(e.em)} · {e.autor} · {e.tipo}</div>{e.texto}</li>)}</ol>
+          </dl></Panel>
+          <Panel title="Linha do tempo e comentários internos">
+            <ol className="relative space-y-3 text-sm">
+              {a.eventos.map((e, i) => (
+                <li key={i} className="relative border-l-2 border-primary/25 pl-4">
+                  <span className="absolute -left-[5px] top-1 h-2 w-2 rounded-full bg-primary/60" />
+                  <div className="text-xs text-muted-foreground">{fmtDate(e.em)} · {e.autor} · {e.tipo}</div>
+                  {e.texto}
+                </li>
+              ))}
+            </ol>
             {canTriage && <div className="mt-3 flex gap-2"><Textarea value={com} onChange={(e) => setCom(e.target.value)} placeholder="Comentário interno…" rows={2} />
               <Button disabled={!com.trim()} onClick={() => { actions.comment(a.id, com); setCom(""); }}>Enviar</Button></div>}
-          </CardContent></Card>
+          </Panel>
         </div>
         <div className="space-y-4">
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Advogado(a)</CardTitle></CardHeader><CardContent><dl>
+          <Panel title="Advogado(a)"><dl>
             <Row k="Nome" v={l.nome_completo} /><Row k="OAB" v={`${l.oab_numero ?? "—"} / ${l.oab_uf ?? "—"}`} /><Row k="Validação CNA" v={l.oab_validacao} />
-            <Row k="Perfil" v={<Link to="/perfis/$id" params={{ id: p.id }} className="underline">@{p.username}</Link>} /><Row k="Rede" v={p.rede} /><Row k="Seguidores" v={p.seguidores.toLocaleString("pt-BR")} />
-          </dl></CardContent></Card>
-          <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Histórico do perfil ({outros.length})</CardTitle></CardHeader><CardContent className="space-y-1.5">
-            {outros.map((o) => <Link key={o.id} to="/alertas/$id" params={{ id: o.id }} className="flex items-center justify-between gap-2 text-sm hover:underline">
-              <span className="font-mono text-xs">{s.rules.find((x) => x.id === o.rule_id)?.codigo}</span><span className="text-xs text-muted-foreground">{STATUS_LABEL[o.status]}</span></Link>)}
-            {!outros.length && <p className="text-sm text-muted-foreground">Sem outros alertas.</p>}
-          </CardContent></Card>
+            <Row k="Perfil" v={<Link to="/perfis/$id" params={{ id: p.id }} className="text-primary underline">@{p.username}</Link>} /><Row k="Rede" v={p.rede} /><Row k="Seguidores" v={p.seguidores.toLocaleString("pt-BR")} />
+          </dl></Panel>
+          <Panel title={`Histórico do perfil (${outros.length})`}>
+            <div className="space-y-1.5">
+              {outros.map((o) => <Link key={o.id} to="/alertas/$id" params={{ id: o.id }} className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 p-2 text-sm hover:bg-muted/50">
+                <span className="font-mono text-xs">{s.rules.find((x) => x.id === o.rule_id)?.codigo}</span><span className="text-xs text-muted-foreground">{STATUS_LABEL[o.status]}</span></Link>)}
+              {!outros.length && <p className="text-sm text-muted-foreground">Sem outros alertas.</p>}
+            </div>
+          </Panel>
         </div>
       </div>
       <Dialog open={fp} onOpenChange={setFp}><DialogContent><DialogHeader><DialogTitle>Marcar como falso positivo</DialogTitle></DialogHeader>

@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,16 +31,20 @@ function Relatorios() {
         <Button variant="outline" onClick={() => downloadCSV("radar-etico-alertas.csv", rows)} disabled={!rows.length}>Exportar CSV</Button>
         <Button onClick={pdf} disabled={!rows.length}>Exportar PDF</Button>
       </PageHeader>
-      <Card><CardContent className="grid gap-3 p-4 sm:grid-cols-5">
-        <div><Label>De</Label><Input type="date" value={f.de} onChange={(e) => setF({ ...f, de: e.target.value })} /></div>
-        <div><Label>Até</Label><Input type="date" value={f.ate} onChange={(e) => setF({ ...f, ate: e.target.value })} /></div>
-        {!uf ? sel("uf", s.seccionais.map((x) => [x.uf, x.uf]), "UF") : <div><Label>UF</Label><Input value={uf} disabled /></div>}
-        {sel("regra", s.rules.map((r) => [r.id, r.codigo]), "Regra")}
-        {sel("status", Object.entries(STATUS_LABEL), "Status")}
-      </CardContent></Card>
-      <div className="mt-4 overflow-x-auto rounded-md border bg-card"><table className="w-full text-sm">
-        <thead className="bg-muted/60 text-left text-xs text-muted-foreground"><tr>{["Alerta", "Data", "UF", "Regra", "Status", "Perfil", "Trecho"].map((h) => <th key={h} className="p-2">{h}</th>)}</tr></thead>
-        <tbody>{rows.slice(0, 50).map((r) => <tr key={r.alerta} className="border-t"><td className="p-2 font-mono text-xs">{r.alerta}</td><td className="p-2 text-xs">{r.data}</td><td className="p-2">{r.uf}</td><td className="p-2 font-mono text-xs">{r.regra}</td><td className="p-2">{r.status}</td><td className="p-2">{r.perfil}</td><td className="max-w-xs truncate p-2">{r.trecho}</td></tr>)}</tbody></table></div>
+      <div className="glass p-4">
+        <h3 className="font-sans text-[15px] font-semibold tracking-tight">Filtros</h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-5">
+          <div><Label>De</Label><Input type="date" value={f.de} onChange={(e) => setF({ ...f, de: e.target.value })} /></div>
+          <div><Label>Até</Label><Input type="date" value={f.ate} onChange={(e) => setF({ ...f, ate: e.target.value })} /></div>
+          {!uf ? sel("uf", s.seccionais.map((x) => [x.uf, x.uf]), "UF") : <div><Label>UF</Label><Input value={uf} disabled /></div>}
+          {sel("regra", s.rules.map((r) => [r.id, r.codigo]), "Regra")}
+          {sel("status", Object.entries(STATUS_LABEL), "Status")}
+        </div>
+      </div>
+      <div className="glass mt-4 overflow-x-auto"><table className="rtable">
+        <thead><tr>{["Alerta", "Data", "UF", "Regra", "Status", "Perfil", "Trecho"].map((h) => <th key={h}>{h}</th>)}</tr></thead>
+        <tbody>{rows.slice(0, 50).map((r) => <tr key={r.alerta}><td className="font-mono text-xs">{r.alerta}</td><td className="whitespace-nowrap text-xs text-muted-foreground">{r.data}</td><td>{r.uf}</td><td className="font-mono text-xs">{r.regra}</td><td>{r.status}</td><td className="whitespace-nowrap">{r.perfil}</td><td className="max-w-xs truncate">{r.trecho}</td></tr>)}
+          {!rows.length && <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">Nenhum alerta no recorte.</td></tr>}</tbody></table></div>
     </>
   );
 }

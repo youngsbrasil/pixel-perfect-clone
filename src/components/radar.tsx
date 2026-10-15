@@ -1,44 +1,82 @@
 import type { ReactNode } from "react";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { cn } from "@/lib/utils";
 import type { AlertStatus, Gravidade } from "@/lib/types";
 import { GRAV_LABEL, STATUS_LABEL } from "@/lib/types";
 
 const sev: Record<Gravidade, string> = {
-  alta: "bg-sev-alta/15 text-sev-alta border-sev-alta/30",
-  media: "bg-sev-media/15 text-sev-media border-sev-media/40",
-  baixa: "bg-sev-baixa/15 text-sev-baixa border-sev-baixa/30",
+  alta: "bg-sev-alta/12 text-sev-alta ring-sev-alta/30",
+  media: "bg-sev-media/12 text-sev-media ring-sev-media/30",
+  baixa: "bg-sev-baixa/12 text-sev-baixa ring-sev-baixa/30",
 };
 export function SevBadge({ g }: { g: Gravidade }) {
-  return <span className={cn("inline-flex items-center rounded-sm border px-1.5 py-0.5 text-xs font-medium", sev[g])}>{GRAV_LABEL[g]}</span>;
+  return <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset", sev[g])}>{GRAV_LABEL[g]}</span>;
 }
 const st: Record<AlertStatus, string> = {
-  novo: "bg-primary/10 text-primary", em_analise: "bg-sev-media/15 text-sev-media", confirmado: "bg-sev-alta/15 text-sev-alta",
-  falso_positivo: "bg-muted text-muted-foreground", encaminhado_ted: "bg-foreground text-background", arquivado: "bg-muted text-muted-foreground",
+  novo: "bg-primary/12 text-primary ring-primary/30",
+  em_analise: "bg-sev-media/12 text-sev-media ring-sev-media/30",
+  confirmado: "bg-sev-alta/12 text-sev-alta ring-sev-alta/30",
+  falso_positivo: "bg-muted text-muted-foreground ring-border",
+  encaminhado_ted: "bg-foreground text-background ring-foreground/20",
+  arquivado: "bg-muted text-muted-foreground ring-border",
 };
 export function StatusBadge({ s }: { s: AlertStatus }) {
-  return <span className={cn("inline-flex rounded-sm px-1.5 py-0.5 text-xs font-medium whitespace-nowrap", st[s])}>{STATUS_LABEL[s]}</span>;
+  return <span className={cn("inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset", st[s])}>{STATUS_LABEL[s]}</span>;
 }
 export function Tag({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cn("inline-flex rounded-sm bg-secondary px-1.5 py-0.5 text-xs text-secondary-foreground", className)}>{children}</span>;
+  return <span className={cn("inline-flex rounded-full bg-secondary/70 px-2 py-0.5 text-[11px] text-secondary-foreground ring-1 ring-inset ring-border", className)}>{children}</span>;
 }
 export function PageHeader({ title, desc, children }: { title: string; desc?: string; children?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b pb-4">
-      <div><h1 className="text-2xl font-semibold tracking-tight">{title}</h1>{desc && <p className="mt-1 text-sm text-muted-foreground">{desc}</p>}</div>
-      <div className="flex gap-2">{children}</div>
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 className="font-sans text-[1.65rem] font-semibold tracking-tight">{title}</h1>
+        {desc && <p className="mt-1 text-sm text-muted-foreground">{desc}</p>}
+      </div>
+      <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
 }
 export function Score({ v }: { v: number }) {
   const c = v >= 60 ? "bg-sev-alta" : v >= 30 ? "bg-sev-media" : "bg-sev-baixa";
-  return <div className="flex items-center gap-2"><div className="h-1.5 w-14 rounded-full bg-muted"><div className={cn("h-full rounded-full", c)} style={{ width: `${v}%` }} /></div><span className="font-mono text-xs tabular-nums">{v}</span></div>;
+  const glow = v >= 60 ? "shadow-[0_0_8px_rgb(248_113_113/0.5)]" : v >= 30 ? "shadow-[0_0_8px_rgb(251_191_36/0.45)]" : "shadow-[0_0_8px_rgb(96_165_250/0.45)]";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="pbar w-16"><div className={cn(c, glow)} style={{ width: `${v}%` }} /></div>
+      <span className="num font-mono text-xs">{v}</span>
+    </div>
+  );
+}
+/** Sparkline de área com gradiente (KPIs). */
+export function Spark({ data, color, id }: { data: number[]; color: string; id: string }) {
+  const pts = data.map((v, i) => ({ i, v }));
+  return (
+    <div className="h-10 w-full">
+      <ResponsiveContainer>
+        <AreaChart data={pts} margin={{ top: 2, bottom: 0, left: 0, right: 0 }}>
+          <defs>
+            <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.45} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <Area type="monotone" dataKey="v" stroke={color} strokeWidth={1.8} fill={`url(#${id})`} isAnimationActive={false} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+/** Chip de ícone colorido. */
+export function Chip({ color, children, className }: { color: "blue" | "green" | "purple" | "amber" | "red" | "pink" | "slate"; children: ReactNode; className?: string }) {
+  return <span className={cn("kpi-chip", `chip-${color}`, className)}>{children}</span>;
 }
 export const fmtDate = (s: string) => new Date(s).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+export const fmtDay = (s: string) => new Date(s).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" });
 
 export function Highlight({ text, trecho }: { text: string; trecho: string }) {
   const i = trecho ? text.toLowerCase().indexOf(trecho.toLowerCase()) : -1;
   if (i < 0) return <>{text}</>;
-  return <>{text.slice(0, i)}<mark className="rounded-sm bg-highlight px-0.5 text-foreground">{text.slice(i, i + trecho.length)}</mark>{text.slice(i + trecho.length)}</>;
+  return <>{text.slice(0, i)}<mark className="rounded bg-highlight px-0.5 text-foreground">{text.slice(i, i + trecho.length)}</mark>{text.slice(i + trecho.length)}</>;
 }
 
 export function downloadCSV(name: string, rows: Record<string, unknown>[]) {

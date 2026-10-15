@@ -3,7 +3,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Copy, Pencil, Plus, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,23 +39,24 @@ function Regras() {
         {canAdmin && <Button onClick={() => setEd({ ...blank(), escopo: uf ?? "nacional" })}><Plus className="h-4 w-4" />Nova regra</Button>}
       </PageHeader>
       <div className="grid gap-4 xl:grid-cols-3">
-        <div className="overflow-x-auto rounded-md border bg-card xl:col-span-2"><table className="w-full text-sm">
-          <thead className="bg-muted/60 text-left text-xs text-muted-foreground"><tr><th className="p-2">Código</th><th className="p-2">Nome</th><th className="p-2">Tipo</th><th className="p-2">Grav.</th><th className="p-2">Limiar</th><th className="p-2">Escopo</th><th className="p-2">v.</th><th className="p-2">Ativa</th><th className="p-2" /></tr></thead>
+        <div className="glass overflow-x-auto xl:col-span-2"><table className="rtable">
+          <thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Grav.</th><th>Limiar</th><th>Escopo</th><th>v.</th><th>Ativa</th><th /></tr></thead>
           <tbody>{s.rules.map((r) => (
-            <tr key={r.id} className="border-t"><td className="p-2 font-mono text-xs">{r.codigo}</td><td className="p-2">{r.nome}<div className="text-xs text-muted-foreground">{r.padroes.length} padrões · {r.exemplos_negativos.length} ex. negativos</div></td>
-              <td className="p-2"><Tag>{r.tipo_deteccao}</Tag></td><td className="p-2"><SevBadge g={r.gravidade} /></td><td className="p-2 font-mono text-xs">{r.limiar_confianca}</td>
-              <td className="p-2">{r.escopo}</td><td className="p-2">{r.versao}</td>
-              <td className="p-2"><Switch checked={r.ativo} disabled={!canAdmin} onCheckedChange={() => actions.toggleRule(r.id)} /></td>
-              <td className="p-2 whitespace-nowrap">
+            <tr key={r.id}><td className="font-mono text-xs">{r.codigo}</td><td>{r.nome}<div className="text-xs text-muted-foreground">{r.padroes.length} padrões · {r.exemplos_negativos.length} ex. negativos</div></td>
+              <td><Tag>{r.tipo_deteccao}</Tag></td><td><SevBadge g={r.gravidade} /></td><td className="num font-mono text-xs">{r.limiar_confianca}</td>
+              <td>{r.escopo}</td><td className="num">{r.versao}</td>
+              <td><Switch checked={r.ativo} disabled={!canAdmin} onCheckedChange={() => actions.toggleRule(r.id)} /></td>
+              <td className="whitespace-nowrap">
                 <Button size="icon" variant="ghost" title="Histórico" onClick={() => setHist(r)}><History className="h-4 w-4" /></Button>
                 {canAdmin && <><Button size="icon" variant="ghost" title="Editar" onClick={() => setEd(structuredClone(r))}><Pencil className="h-4 w-4" /></Button>
                   <Button size="icon" variant="ghost" title="Duplicar" onClick={() => setEd({ ...structuredClone(r), id: `r${Date.now()}`, codigo: `${r.codigo}-COPIA`, versao: 0 })}><Copy className="h-4 w-4" /></Button></>}
               </td></tr>))}</tbody></table></div>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Testador de regra</CardTitle></CardHeader><CardContent className="space-y-3">
+        <div className="glass space-y-3 p-4">
+          <h3 className="font-sans text-[15px] font-semibold tracking-tight">Testador de regra</h3>
           <Textarea rows={5} value={txt} onChange={(e) => setTxt(e.target.value)} placeholder="Cole um texto…" />
-          {res.length ? res.map((m) => <div key={m.rule.id} className="rounded-md border p-2 text-sm"><div className="flex items-center gap-2"><span className="font-mono text-xs">{m.rule.codigo}</span><SevBadge g={m.rule.gravidade} /><span className="ml-auto font-mono text-xs">conf. {m.confianca.toFixed(2)}</span></div><div className="mt-1 text-xs text-muted-foreground">Trecho: “{m.trecho}”</div></div>)
+          {res.length ? res.map((m) => <div key={m.rule.id} className="rounded-lg bg-muted/30 p-2 text-sm"><div className="flex items-center gap-2"><span className="font-mono text-xs">{m.rule.codigo}</span><SevBadge g={m.rule.gravidade} /><span className="num ml-auto font-mono text-xs">conf. {m.confianca.toFixed(2)}</span></div><div className="mt-1 text-xs text-muted-foreground">Trecho: “{m.trecho}”</div></div>)
             : <p className="text-sm text-muted-foreground">Nenhuma regra disparou.</p>}
-        </CardContent></Card>
+        </div>
       </div>
 
       <Dialog open={!!ed} onOpenChange={(o) => !o && setEd(null)}><DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">

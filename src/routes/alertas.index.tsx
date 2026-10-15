@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PageHeader, SevBadge, StatusBadge, fmtDate } from "@/components/radar";
+import { Chip, PageHeader, SevBadge, StatusBadge, fmtDate } from "@/components/radar";
 import { actions } from "@/lib/store";
 import { useScoped } from "@/lib/scope";
-import { REDES, STATUS_LABEL, type AlertStatus } from "@/lib/types";
+import { REDES, STATUS_LABEL, type AlertStatus, type Gravidade } from "@/lib/types";
 
 export const Route = createFileRoute("/alertas/")({
   head: () => ({ meta: [
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/alertas/")({
 
 const W = { alta: 3, media: 2, baixa: 1 };
 const ALL = "todos";
+const CHIP: Record<Gravidade, "red" | "amber" | "blue"> = { alta: "red", media: "amber", baixa: "blue" };
 
 function F({ v, set, opts, ph }: { v: string; set: (v: string) => void; opts: [string, string][]; ph: string }) {
   return <Select value={v} onValueChange={set}><SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder={ph} /></SelectTrigger>
@@ -41,7 +43,7 @@ function Fila() {
   return (
     <>
       <PageHeader title="Fila de alertas" desc={`${rows.length} alerta(s) · ordenados por gravidade × confiança`} />
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="glass mb-3 flex flex-wrap items-center gap-2 p-3">
         <F v={f.status} set={up("status")} ph="Status" opts={Object.entries(STATUS_LABEL)} />
         <F v={f.grav} set={up("grav")} ph="Gravidade" opts={[["alta", "Alta"], ["media", "Média"], ["baixa", "Baixa"]]} />
         <F v={f.regra} set={up("regra")} ph="Regra" opts={s.rules.map((r) => [r.id, `${r.codigo} ${r.nome}`])} />
@@ -51,7 +53,7 @@ function Fila() {
         <div className="flex items-center gap-1 text-xs text-muted-foreground">Confiança ≥<Input type="number" step="0.05" min="0" max="1" value={f.conf} onChange={(e) => up("conf")(e.target.value)} className="h-8 w-20 text-xs" /></div>
       </div>
       {canTriage && sel.length > 0 && (
-        <div className="mb-3 flex items-center gap-2 rounded-md border bg-accent p-2 text-sm">
+        <div className="glass mb-3 flex items-center gap-2 p-2 text-sm">
           <span className="font-medium">{sel.length} selecionado(s)</span>
           <Select onValueChange={(u) => { actions.assign(sel, u); toast.success("Atribuído"); setSel([]); }}>
             <SelectTrigger className="h-8 w-52 text-xs"><SelectValue placeholder="Atribuir a…" /></SelectTrigger>
@@ -61,22 +63,25 @@ function Fila() {
           <Button size="sm" variant="outline" onClick={() => bulk("arquivado")}>Descartar (arquivar)</Button>
         </div>
       )}
-      <div className="overflow-x-auto rounded-md border bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/60 text-left text-xs text-muted-foreground"><tr>
-            <th className="w-8 p-2">{canTriage && <Checkbox checked={all} onCheckedChange={(c) => setSel(c ? rows.map((r) => r.a.id) : [])} />}</th>
-            <th className="p-2">Gravidade</th><th className="p-2">Regra</th><th className="p-2">Perfil</th><th className="p-2">Trecho</th>
-            <th className="p-2">Conf.</th><th className="p-2">UF</th><th className="p-2">Status</th><th className="p-2">Criado</th></tr></thead>
+      <div className="glass overflow-x-auto">
+        <table className="rtable">
+          <thead><tr>
+            <th className="w-8">{canTriage && <Checkbox checked={all} onCheckedChange={(c) => setSel(c ? rows.map((r) => r.a.id) : [])} />}</th>
+            <th>Gravidade</th><th>Regra</th><th>Perfil</th><th>Trecho</th>
+            <th>Conf.</th><th>UF</th><th>Status</th><th>Criado</th></tr></thead>
           <tbody>{rows.map(({ a, p, r }) => (
-            <tr key={a.id} className="border-t hover:bg-muted/40">
-              <td className="p-2">{canTriage && <Checkbox checked={sel.includes(a.id)} onCheckedChange={(c) => setSel(c ? [...sel, a.id] : sel.filter((x) => x !== a.id))} />}</td>
-              <td className="p-2"><SevBadge g={a.gravidade} /></td>
-              <td className="p-2 font-mono text-xs">{r.codigo}</td>
-              <td className="p-2 whitespace-nowrap">@{p.username} <span className="text-xs text-muted-foreground">{p.rede}</span></td>
-              <td className="max-w-xs p-2"><Link to="/alertas/$id" params={{ id: a.id }} className="line-clamp-1 hover:underline">“{a.trecho_detectado}”</Link></td>
-              <td className="p-2 font-mono text-xs tabular-nums">{a.confianca.toFixed(2)}</td>
-              <td className="p-2">{a.seccional_uf}</td><td className="p-2"><StatusBadge s={a.status} /></td>
-              <td className="p-2 text-xs whitespace-nowrap text-muted-foreground">{fmtDate(a.criado_em)}</td>
+            <tr key={a.id}>
+              <td>{canTriage && <Checkbox checked={sel.includes(a.id)} onCheckedChange={(c) => setSel(c ? [...sel, a.id] : sel.filter((x) => x !== a.id))} />}</td>
+              <td><div className="flex items-center gap-2">
+                <Chip color={CHIP[a.gravidade]}><BellRing className="h-4 w-4" /></Chip>
+                <SevBadge g={a.gravidade} />
+              </div></td>
+              <td className="font-mono text-xs">{r.codigo}</td>
+              <td className="whitespace-nowrap">@{p.username} <span className="text-xs text-muted-foreground">{p.rede}</span></td>
+              <td className="max-w-xs"><Link to="/alertas/$id" params={{ id: a.id }} className="line-clamp-1 hover:text-primary hover:underline">“{a.trecho_detectado}”</Link></td>
+              <td className="num font-mono text-xs">{a.confianca.toFixed(2)}</td>
+              <td>{a.seccional_uf}</td><td><StatusBadge s={a.status} /></td>
+              <td className="whitespace-nowrap text-xs text-muted-foreground">{fmtDate(a.criado_em)}</td>
             </tr>))}
             {!rows.length && <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Nenhum alerta com esses filtros.</td></tr>}
           </tbody>

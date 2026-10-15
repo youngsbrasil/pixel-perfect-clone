@@ -23,10 +23,10 @@ function Splash() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const s = useApp();
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const path = useRouterState({ select: (r) => r.location.pathname });
 
-  useEffect(() => { document.documentElement.classList.toggle("dark", dark); }, [dark]);
+  useEffect(() => { document.documentElement.classList.toggle("light", !dark); }, [dark]);
   useEffect(() => {
     boot();
     return onAuthChange(() => boot(true));

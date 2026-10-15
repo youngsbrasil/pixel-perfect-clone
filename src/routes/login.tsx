@@ -2,9 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Chip } from "@/components/radar";
 import { actions, useApp } from "@/lib/store";
 
 export const Route = createFileRoute("/login")({
@@ -38,30 +38,28 @@ function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <ShieldCheck className="mx-auto h-10 w-10 text-primary" />
-          <CardTitle className="font-serif text-2xl">Radar Ético</CardTitle>
-          <p className="text-sm text-muted-foreground">Monitoramento de publicidade na advocacia</p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={submit} className="grid gap-4">
-            <div className="grid gap-1.5">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" autoComplete="username" value={email}
-                onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="pass">Senha</Label>
-              <Input id="pass" type="password" autoComplete="current-password" value={password}
-                onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            {err && <p className="text-sm text-destructive">{err}</p>}
-            <Button type="submit" disabled={busy}>{busy ? "Entrando…" : "Entrar"}</Button>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="glass w-full max-w-sm p-6">
+        <div className="mb-5 text-center">
+          <div className="flex justify-center"><Chip color="blue"><ShieldCheck className="h-6 w-6" /></Chip></div>
+          <h1 className="mt-3 font-sans text-2xl font-semibold tracking-tight">Radar Ético</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Monitoramento de publicidade na advocacia</p>
+        </div>
+        <form onSubmit={submit} className="grid gap-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="email">E-mail</Label>
+            <Input id="email" type="email" autoComplete="username" value={email}
+              onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="pass">Senha</Label>
+            <Input id="pass" type="password" autoComplete="current-password" value={password}
+              onChange={(e) => setPassword(e.target.value)} required />
+          </div>
+          {err && <p className="text-sm text-destructive">{err}</p>}
+          <Button type="submit" disabled={busy}>{busy ? "Entrando…" : "Entrar"}</Button>
+        </form>
+      </div>
     </div>
   );
 }

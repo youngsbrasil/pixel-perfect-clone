@@ -31,18 +31,18 @@ function Fontes() {
   return (
     <>
       <PageHeader title="Fontes de descoberta" desc="Hashtags e termos que o robô usa para encontrar perfis." />
-      {canAdmin && <div className="mb-4 flex flex-wrap items-center gap-2">
+      {canAdmin && <div className="glass mb-4 flex flex-wrap items-center gap-2 p-3">
         <Input value={v} onChange={(e) => setV(e.target.value)} placeholder="#hashtag, termo ou @perfil" className="w-64" onKeyDown={(e) => e.key === "Enter" && add()} />
         <Select value={rede} onValueChange={(x) => setRede(x as Rede)}><SelectTrigger className="w-36"><SelectValue /></SelectTrigger><SelectContent>{REDES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select>
         <Button onClick={add}>Adicionar</Button>
         <label className="ml-auto inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted"><Upload className="h-4 w-4" />Importar CSV de @
           <input type="file" accept=".csv,.txt" className="hidden" onChange={(e) => e.target.files?.[0] && csv(e.target.files[0])} /></label>
       </div>}
-      <div className="rounded-md border bg-card"><table className="w-full text-sm">
-        <thead className="bg-muted/60 text-left text-xs text-muted-foreground"><tr><th className="p-2">Valor</th><th className="p-2">Tipo</th><th className="p-2">Rede</th><th className="p-2">Ativa</th><th className="p-2" /></tr></thead>
-        <tbody>{s.sources.map((x) => <tr key={x.id} className="border-t"><td className="p-2 font-mono">{x.valor}</td><td className="p-2"><Tag>{x.tipo}</Tag></td><td className="p-2">{x.rede}</td>
-          <td className="p-2"><Switch checked={x.ativo} disabled={!canAdmin} onCheckedChange={() => actions.toggleSource(x.id)} /></td>
-          <td className="p-2">{canAdmin && <Button size="icon" variant="ghost" onClick={() => actions.removeSource(x.id)}><Trash2 className="h-4 w-4" /></Button>}</td></tr>)}</tbody></table></div>
+      <div className="glass overflow-x-auto"><table className="rtable">
+        <thead><tr><th>Valor</th><th>Tipo</th><th>Rede</th><th>Ativa</th><th /></tr></thead>
+        <tbody>{s.sources.map((x) => <tr key={x.id}><td className="font-mono text-xs">{x.valor}</td><td><Tag>{x.tipo}</Tag></td><td className="capitalize text-muted-foreground">{x.rede}</td>
+          <td><Switch checked={x.ativo} disabled={!canAdmin} onCheckedChange={() => actions.toggleSource(x.id)} /></td>
+          <td>{canAdmin && <Button size="icon" variant="ghost" onClick={() => actions.removeSource(x.id)}><Trash2 className="h-4 w-4" /></Button>}</td></tr>)}</tbody></table></div>
     </>
   );
 }
