@@ -16,13 +16,13 @@ export const Route = createFileRoute("/varreduras")({
 });
 
 function Varreduras() {
-  const { s, canAdmin } = useScoped(); const [busy, setBusy] = useState(false);
+  const { s, canTriage } = useScoped(); const [busy, setBusy] = useState(false);
   const run = async () => { setBusy(true); const n = await actions.runScan(); setBusy(false); toast.success(`Varredura concluída: ${n} item(ns) processado(s)`); };
   const maxItens = Math.max(1, ...s.jobs.map((j) => j.itens_processados));
   return (
     <>
       <PageHeader title="Varreduras" desc={`Frequência configurada: a cada ${s.params.frequencia_horas}h · provedor simulado`}>
-        {canAdmin && <Button onClick={run} disabled={busy}><Play className="h-4 w-4" />{busy ? "Executando…" : "Rodar agora"}</Button>}
+        {canTriage && <Button onClick={run} disabled={busy}><Play className="h-4 w-4" />{busy ? "Executando…" : "Rodar agora"}</Button>}
       </PageHeader>
       <div className="glass overflow-x-auto"><table className="rtable">
         <thead><tr><th>Job</th><th>Tipo</th><th>Status</th><th>Início</th><th>Fim</th><th>Itens processados</th><th>Erros</th><th>Custo est.</th></tr></thead>
