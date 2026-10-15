@@ -221,7 +221,7 @@ begin
        jsonb_build_array(jsonb_build_object('valor', wa, 'fonte', 'link')),
        jsonb_build_array(jsonb_build_object('valor', email, 'fonte', 'bio')),
        jsonb_build_object('valor', site, 'fonte', 'link'),
-       base_ts - (((i % 4)::text) || ' days')::interval;
+       base_ts - (((i % 4)::text) || ' days')::interval);
   end loop;
 
   -- conteúdos + alertas
