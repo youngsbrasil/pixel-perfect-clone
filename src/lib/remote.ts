@@ -239,4 +239,12 @@ export const db = {
     if (error) throw error;
     return data;
   },
+  /** Importa perfis reais (URLs coladas pelo analista) via discover-profiles. */
+  async importProfiles(perfis: { url: string; bio?: string; nome_exibido?: string }[]) {
+    const { data, error } = await supabase.functions.invoke("discover-profiles", {
+      body: { acao: "importar", perfis },
+    });
+    if (error) throw error;
+    return data as { novos: number; ignorados: { url: string; motivo: string }[] };
+  },
 };

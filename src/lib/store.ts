@@ -295,4 +295,41 @@ export const actions = {
     set((d) => { d.jobs.unshift({ id: `j${Date.now()}`, tipo: profileId ? "coleta" : "descoberta", status: "concluido", inicio, fim: now(), itens_processados: itens, erros: [], custo_estimado: 0 }); log(d, "varredura executada", "scan_job", profileId ?? "global"); });
     return itens;
   },
+
+  /** Importa perfis reais a partir de URLs coladas pelo analista. */
+  importProfiles: async (linhas: { url: string; bio?: string }[]) => {
+    if (isRemote()) {
+      const res = await db.importProfiles(linhas);
+      await db.audit("importação de perfis", "fonte", `${res.novos} novo(s)`);
+      await refreshAfterScan();
+      return res;
+    }
+    // Modo local: parser simplificado.
+    let novos = 0; const ignorados: { url: string; motivo: string }[] = [];
+    const parseLocal = (u: string) => {
+      const m = u.trim().match(/^https?:\/\/(?:www\.)?(instagram\.com|tiktok\.com|x\.com|twitter\.com|facebook\.com|youtube\.com|linkedin\.com)\/(@?[A-Za-z0-9._-]{1,60})/i);
+      if (!m) return null;
+      const host = (m[1] ?? "").toLowerCase();
+      const rede = host.includes("instagram") ? "instagram" : host.includes("tiktok") ? "tiktok" : host.includes("face") ? "facebook" : host.includes("linkedin") ? "linkedin" : host.includes("youtu") ? "youtube" : "x";
+      return { rede, username: (m[2] ?? "").replace(/^@/, "") };
+    };
+    set((d) => {
+      for (const l of linhas) {
+        const p = parseLocal(l.url);
+        if (!p) { ignorados.push({ url: l.url, motivo: "URL não reconhecida" }); continue; }
+        if (d.profiles.some((x) => x.rede === p.rede && x.username === p.username)) { ignorados.push({ url: l.url, motivo: "perfil já cadastrado" }); continue; }
+        const bio = (l.bio || "");
+        const cls = classifyLawyer(bio, "A verificar", []);
+        if (cls.score < d.params.lawyer_score_min) { ignorados.push({ url: l.url, motivo: "bio sem sinais de advocacia" }); continue; }
+        const e = enrich(bio, []);
+        const id = `p${Date.now()}${novos}`;
+        d.profiles.push({ id, rede: p.rede as never, username: p.username, url: l.url, nome_exibido: `@${p.username}`, bio, seguidores: 0, categoria_perfil: "A verificar", links_externos: [], lawyer_score: cls.score, sinais_identificacao: cls.sinais, uf_provavel: e.oab?.uf ?? "", status_monitoramento: "ativo", ultima_varredura: now(), risco_score: 0 });
+        d.lawyers.push({ profile_id: id, nome_completo: `@${p.username}`, oab_numero: e.oab?.numero ?? null, oab_uf: e.oab?.uf ?? null, oab_validacao: "pendente", telefones: [], whatsapp: [], emails: [], site: null, coletado_em: now() });
+        novos++;
+      }
+      d.jobs.unshift({ id: `j${Date.now()}`, tipo: "descoberta", status: "concluido", inicio: now(), fim: now(), itens_processados: novos, erros: [], custo_estimado: 0 });
+      log(d, "importação de perfis", "fonte", `${novos} novo(s)`);
+    });
+    return { novos, ignorados };
+  },
 };
