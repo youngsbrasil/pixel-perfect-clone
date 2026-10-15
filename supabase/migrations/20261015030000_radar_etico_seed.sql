@@ -190,8 +190,8 @@ begin
     score := least(score, 100);
     sinais := array['bio contém ''advogado(a)''', 'link para site jurídico'];
     if has_oab then sinais := sinais || ('bio contém OAB/' || uf); end if;
-    if not has_oab then sinais := sinais || 'Dr./Dra. + termo jurídico'; end if;
-    if cat in ('Advogada', 'Advogado') then sinais := sinais || 'categoria: Advogado'; end if;
+    if not has_oab then sinais := sinais || 'Dr./Dra. + termo jurídico'::text; end if;
+    if cat in ('Advogada', 'Advogado') then sinais := sinais || 'categoria: Advogado'::text; end if;
 
     insert into public.social_profiles
       (rede, username, url, nome_exibido, bio, seguidores, categoria_perfil,
