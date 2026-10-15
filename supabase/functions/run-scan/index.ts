@@ -16,7 +16,12 @@ Deno.serve(async (req) => {
 
   const body = await req.json().catch(() => ({}) as { profile_id?: string });
   const base = `${Deno.env.get("SUPABASE_URL")}/functions/v1`;
-  const authHeader = req.headers.get("Authorization")!;
+  // Repassa a credencial usada (JWT do usuário ou segredo do cron) às sub-functions.
+  const fwd: Record<string, string> = { "Content-Type": "application/json" };
+  const authHeader = req.headers.get("Authorization");
+  const cronSecret = req.headers.get("x-cron-secret");
+  if (authHeader) fwd["Authorization"] = authHeader;
+  if (cronSecret) fwd["x-cron-secret"] = cronSecret;
 
   const resumo: Record<string, unknown> = {};
   for (const step of STEPS) {
@@ -28,7 +33,7 @@ Deno.serve(async (req) => {
     try {
       const res = await fetch(`${base}/${step}`, {
         method: "POST",
-        headers: { Authorization: authHeader, "Content-Type": "application/json" },
+        headers: fwd,
         body: JSON.stringify(body.profile_id ? { profile_id: body.profile_id } : {}),
       });
       const data = await res.json().catch(() => ({}));

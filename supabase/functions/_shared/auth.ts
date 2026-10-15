@@ -13,10 +13,18 @@ const HIERARCHY: Record<string, number> = {
 };
 
 export type AuthResult =
-  { ok: true; user: User; role: string; uf: string | null } | { ok: false; response: Response };
+  { ok: true; user: User | null; role: string; uf: string | null } | { ok: false; response: Response };
 
-/** Exige papel mínimo. Lê o papel em `user_roles` (RLS permite ler a própria linha). */
+/** Exige papel mínimo. Lê o papel em `user_roles` (RLS permite ler a própria linha).
+ *  Chamadas agendadas (pg_cron) usam o header `x-cron-secret` e entram como
+ *  contexto de sistema (papel admin_nacional, sem UF). */
 export async function requireRole(req: Request, minRole: MinRole): Promise<AuthResult> {
+  const cronSecret = req.headers.get("x-cron-secret");
+  const expected = Deno.env.get("CRON_SECRET");
+  if (expected && cronSecret === expected) {
+    return { ok: true, user: null, role: "admin_nacional", uf: null };
+  }
+
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return { ok: false, response: json({ error: "Não autenticado" }, 401) };
 

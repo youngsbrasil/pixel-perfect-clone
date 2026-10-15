@@ -68,6 +68,36 @@ acima são só ilustrativos — ajuste o `where` para os e-mails que você criar
    (via `run-scan` → 4 functions).
 4. Confira **Fila de alertas** e **Administração → Auditoria**.
 
+## 6. Agendamento automático (varredura a cada 6h)
+
+1. Rode a migration `20261015060000_radar_etico_agendamento.sql` no SQL Editor
+   (habilita `pg_cron` e `pg_net`).
+2. Gere um segredo e registre nas functions (na pasta do repo):
+   ```sh
+   npx supabase secrets set CRON_SECRET=$(openssl rand -hex 32)
+   npx supabase functions deploy run-scan discover-profiles classify-lawyer analyze-content enrich-lawyer
+   ```
+   (O deploy republica as functions com o suporte a `x-cron-secret`.)
+3. No SQL Editor, crie o job — **troque `SEU_SEGREDO` pelo mesmo valor**:
+   ```sql
+   select cron.schedule(
+     'radar-etico-varredura',
+     '0 */6 * * *',
+     $$
+     select net.http_post(
+       url := 'https://achwbonywxbonsqfidtm.supabase.co/functions/v1/run-scan',
+       headers := jsonb_build_object(
+         'Content-Type', 'application/json',
+         'x-cron-secret', 'SEU_SEGREDO'
+       ),
+       body := '{}'::jsonb
+     );
+     $$
+   );
+   ```
+4. Confira: `select * from cron.job;` — para desativar:
+   `select cron.unschedule('radar-etico-varredura');`
+
 ## Notas
 
 - Sem login ou com o banco inacessível, o app cai para **demonstração local**
