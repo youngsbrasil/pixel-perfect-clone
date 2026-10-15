@@ -332,4 +332,51 @@ export const actions = {
     });
     return { novos, ignorados };
   },
+
+  /** Coleta assistida de conteúdo de um perfil. */
+  addContent: async (profileId: string, itens: { url?: string; texto: string }[]) => {
+    if (isRemote()) {
+      const res = await db.addContent(profileId, itens);
+      await db.audit("coleta de conteúdo", "perfil", profileId);
+      await refreshAfterScan();
+      return res;
+    }
+    let novos = 0;
+    set((d) => {
+      for (const item of itens) {
+        const texto = item.texto.trim(); if (texto.length < 3) continue;
+        const hash = fakeHash(profileId + texto);
+        if (d.contents.some((c) => c.profile_id === profileId && c.hash_conteudo === hash)) continue;
+        d.contents.push({ id: `c${Date.now()}${novos}`, profile_id: profileId, tipo: "post", url: item.url || "", texto, hashtags: texto.match(/#[\p{L}\p{N}_]+/gu) ?? [], publicado_em: now(), coletado_em: now(), hash_conteudo: hash });
+        novos++;
+      }
+      d.jobs.unshift({ id: `j${Date.now()}`, tipo: "coleta", status: "concluido", inicio: now(), fim: now(), itens_processados: novos, erros: [], custo_estimado: 0 });
+      log(d, "coleta de conteúdo", "perfil", profileId);
+    });
+    return { novos, ignorados: itens.length - novos };
+  },
+
+  /** Analisa os conteúdos de um perfil e gera alertas. */
+  analyzeProfile: async (profileId: string) => {
+    if (isRemote()) {
+      const res = await db.analyzeProfile(profileId);
+      await refreshAfterScan();
+      return res;
+    }
+    let criados = 0;
+    set((d) => {
+      const p = d.profiles.find((x) => x.id === profileId)!;
+      for (const c of d.contents.filter((x) => x.profile_id === profileId)) {
+        for (const m of analyzeText(c.texto, d.rules, p.rede)) {
+          if (d.alerts.some((a) => a.content_item_id === c.id && a.rule_id === m.rule.id)) continue;
+          d.alerts.push(mkAlert(`a${d.alerts.length + 1}-${Date.now()}`, c, p, m, "novo", now()));
+          criados++;
+        }
+      }
+      recomputeRisk(d.profiles, d.alerts, d.rules);
+      d.jobs.unshift({ id: `j${Date.now()}`, tipo: "analise", status: "concluido", inicio: now(), fim: now(), itens_processados: criados, erros: [], custo_estimado: 0 });
+      log(d, "análise de perfil", "perfil", profileId);
+    });
+    return { analisados: 0, alertas_criados: criados };
+  },
 };

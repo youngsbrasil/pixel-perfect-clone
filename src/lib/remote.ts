@@ -247,4 +247,20 @@ export const db = {
     if (error) throw error;
     return data as { novos: number; ignorados: { url: string; motivo: string }[] };
   },
+  /** Coleta assistida: registra conteúdos reais de um perfil. */
+  async addContent(profileId: string, itens: { url?: string; texto: string; tipo?: string }[]) {
+    const { data, error } = await supabase.functions.invoke("collect-content", {
+      body: { profile_id: profileId, itens },
+    });
+    if (error) throw error;
+    return data as { novos: number; ignorados: number };
+  },
+  /** Analisa os conteúdos de um perfil (gera alertas). */
+  async analyzeProfile(profileId: string) {
+    const { data, error } = await supabase.functions.invoke("analyze-content", {
+      body: { profile_id: profileId },
+    });
+    if (error) throw error;
+    return data as { analisados: number; alertas_criados: number };
+  },
 };
