@@ -146,7 +146,7 @@ declare
   cat       text; score int; sinais text[];
   pid       uuid; cid uuid; aid uuid;
   texto     text; tipo text; irregular boolean; idx int;
-  rule_code text; rule_id uuid; rule_nome text; rule_grav text; st text;
+  rule_code text; v_rule_id uuid; rule_nome text; rule_grav text; st text;
   trecho    text; justif text; curl text;
 begin
   if exists (select 1 from public.social_profiles limit 1) then
@@ -249,7 +249,7 @@ begin
     returning id into cid;
 
     if irregular and cid is not null then
-      select r.id, r.nome, r.gravidade into rule_id, rule_nome, rule_grav
+      select r.id, r.nome, r.gravidade into v_rule_id, rule_nome, rule_grav
         from public.rules r where r.codigo = rule_code;
       st := statuses[(a % 10) + 1];
       a := a + 1;
@@ -260,7 +260,7 @@ begin
         (profile_id, content_item_id, rule_id, rule_versao, trecho_detectado,
          justificativa_ia, confianca, gravidade, status, seccional_uf, criado_em)
       values
-        (pid, cid, rule_id, 1, trecho, justif, 0.86, rule_grav, st,
+        (pid, cid, v_rule_id, 1, trecho, justif, 0.86, rule_grav, st,
          (select uf_provavel from public.social_profiles where id = pid),
          (select coletado_em from public.content_items where id = cid))
       on conflict (content_item_id, rule_id) do nothing
